@@ -34,6 +34,6 @@ build:
 	chdir . && set GOOS=linux&& set GOARCH=amd64&& set CGO_ENABLED=0 && go build -o ${APP_BINARY} .
 
 mock:
-	mockgen -package mockdb -destination internal/db/mock/store.go github.com/zura-t/go_delivery_system-shops/internal/pkg/sqlc Store
+	mockgen -package mockdb -destination pkg/db/mock/store.go github.com/zura-t/go_delivery_system-shops/pkg/db/sqlc Store
 
 .PHONY: postgres test sqlc createdb dropdb mock migratedown migrateup migratedown2 migrateup1 server build

@@ -30,6 +30,10 @@ func (uc *ShopUseCase) UpdateMenuItem(id int64, req *entity.UpdateMenuItem) (*en
 
 	menuItemUpdated, err := uc.store.UpdateMenuItem(context.Background(), arg)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("menu item not found: %s", err)
+			return nil, http.StatusNotFound, err
+		}
 		err = fmt.Errorf("failed to update menu item: %s", err)
 		return nil, http.StatusInternalServerError, err
 	}

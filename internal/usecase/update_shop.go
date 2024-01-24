@@ -38,6 +38,10 @@ func (uc *ShopUseCase) UpdateShop(id int64, req *entity.UpdateShopInfo) (*entity
 
 	shopUpdated, err := uc.store.UpdateShop(context.Background(), arg)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("shop not found: %s", err)
+			return nil, http.StatusNotFound, err
+		}
 		err = fmt.Errorf("failed to update shop: %s", err)
 		return nil, http.StatusInternalServerError, err
 	}

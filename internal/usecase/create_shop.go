@@ -27,11 +27,11 @@ func (uc *ShopUseCase) CreateShop(req *entity.CreateShop) (*entity.Shop, int, er
 	arg := db.CreateShopParams{
 		Name: req.Name,
 		OpenTime: sql.NullTime{
-			Valid: true,
+			Valid: !req.OpenTime.IsZero(),
 			Time:  req.OpenTime,
 		},
 		CloseTime: sql.NullTime{
-			Valid: true,
+			Valid: !req.CloseTime.IsZero(),
 			Time:  req.CloseTime,
 		},
 		IsClosed: req.IsClosed,

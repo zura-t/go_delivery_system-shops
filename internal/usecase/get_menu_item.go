@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -11,6 +12,10 @@ import (
 func (uc *ShopUseCase) GetMenuItem(id int64) (*entity.MenuItem, int, error) {
 	i, err := uc.store.GetMenuItem(context.Background(), id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("user not found: %s", err)
+			return nil, http.StatusNotFound, err
+		}
 		err := fmt.Errorf("failed to get menu item: %s", err)
 		return nil, http.StatusInternalServerError, err
 	}

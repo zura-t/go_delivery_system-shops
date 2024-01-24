@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -11,6 +12,10 @@ import (
 func (uc *ShopUseCase) GetShopInfo(id int64) (*entity.Shop, int, error) {
 	shopCreated, err := uc.store.GetShop(context.Background(), id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("shop not found: %s", err)
+			return nil, http.StatusNotFound, err
+		}
 		err = fmt.Errorf("failed to get shop: %s", err)
 		return nil, http.StatusInternalServerError, err
 	}
