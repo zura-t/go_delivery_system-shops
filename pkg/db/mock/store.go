@@ -123,6 +123,21 @@ func (mr *MockStoreMockRecorder) GetShop(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetShop", reflect.TypeOf((*MockStore)(nil).GetShop), arg0, arg1)
 }
 
+// GetShopsAdmin mocks base method.
+func (m *MockStore) GetShopsAdmin(arg0 context.Context, arg1 db.GetShopsAdminParams) ([]db.Shop, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetShopsAdmin", arg0, arg1)
+	ret0, _ := ret[0].([]db.Shop)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetShopsAdmin indicates an expected call of GetShopsAdmin.
+func (mr *MockStoreMockRecorder) GetShopsAdmin(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetShopsAdmin", reflect.TypeOf((*MockStore)(nil).GetShopsAdmin), arg0, arg1)
+}
+
 // ListMenuItems mocks base method.
 func (m *MockStore) ListMenuItems(arg0 context.Context, arg1 db.ListMenuItemsParams) ([]db.MenuItem, error) {
 	m.ctrl.T.Helper()

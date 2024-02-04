@@ -26,5 +26,6 @@ type Shop struct {
 	OpenTime    sql.NullTime   `json:"open_time"`
 	CloseTime   sql.NullTime   `json:"close_time"`
 	IsClosed    bool           `json:"is_closed"`
+	UserID      int64          `json:"user_id"`
 	CreatedAt   time.Time      `json:"created_at"`
 }

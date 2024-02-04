@@ -30,8 +30,8 @@ test:
 server:
 	go run main.go
 
-build:
-	chdir . && set GOOS=linux&& set GOARCH=amd64&& set CGO_ENABLED=0 && go build -o ${APP_BINARY} .
+buildgo:
+	chdir . && set GOOS=linux&& set GOARCH=amd64&& set CGO_ENABLED=0 && go build -o ${APP_BINARY} ./cmd/app/
 
 mock:
 	mockgen -package mockdb -destination pkg/db/mock/store.go github.com/zura-t/go_delivery_system-shops/pkg/db/sqlc Store

@@ -35,6 +35,7 @@ func (uc *ShopUseCase) CreateShop(req *entity.CreateShop) (*entity.Shop, int, er
 			Time:  req.CloseTime,
 		},
 		IsClosed: req.IsClosed,
+		UserID: req.UserId,
 	}
 
 	shopCreated, err := uc.store.CreateShop(context.Background(), arg)

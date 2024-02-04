@@ -2,7 +2,6 @@ package usecase_test
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 	"testing"
 
@@ -39,6 +38,7 @@ func Test_create_shop(t *testing.T) {
 				OpenTime:    shop.OpenTime.Time,
 				CloseTime:   shop.CloseTime.Time,
 				IsClosed:    shop.IsClosed,
+				UserId:      pkg.RandomInt(1, 1000),
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				req := db.CreateShopParams{
@@ -47,6 +47,7 @@ func Test_create_shop(t *testing.T) {
 					OpenTime:    shop.OpenTime,
 					CloseTime:   shop.CloseTime,
 					IsClosed:    shop.IsClosed,
+					UserID:      pkg.RandomInt(1, 1000),
 				}
 				shopCreated := db.Shop{
 					ID:          shop.ID,
@@ -56,7 +57,6 @@ func Test_create_shop(t *testing.T) {
 					CloseTime:   shop.CloseTime,
 					IsClosed:    shop.IsClosed,
 				}
-				log.Print(shop)
 
 				store.EXPECT().CreateShop(gomock.Any(), req).
 					Times(1).

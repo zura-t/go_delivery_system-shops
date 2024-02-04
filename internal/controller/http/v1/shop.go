@@ -60,8 +60,28 @@ type IdParam struct {
 }
 
 func (r *shopRoutes) getShops(ctx *gin.Context) {
-	// var req
 	shops, st, err := r.shopUsecase.GetShops()
+	if err != nil {
+		r.logger.Error(err, "package: v1", "http - v1 - GetShops")
+		errorResponse(ctx, st, err.Error())
+		return
+	}
+
+	ctx.JSON(st, shops)
+}
+
+type UserIdQuery struct {
+	UserId int64 `form:"id" binding:"required,min=1"`
+}
+
+func (r *shopRoutes) getShopsAdmin(ctx *gin.Context) {
+	var req UserIdQuery
+	if err := ctx.ShouldBind(&req); err != nil {
+		errorResponse(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	shops, st, err := r.shopUsecase.GetShopsAdmin(req.UserId)
 	if err != nil {
 		r.logger.Error(err, "package: v1", "http - v1 - GetShops")
 		errorResponse(ctx, st, err.Error())

@@ -5,6 +5,7 @@ CREATE TABLE "shops" (
   "open_time" timestamptz,
   "close_time" timestamptz,
   "is_closed" boolean NOT NULL DEFAULT true,
+  "user_id" bigserial NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 

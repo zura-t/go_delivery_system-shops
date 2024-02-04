@@ -58,11 +58,12 @@ INSERT INTO shops (
   description,
   open_time,
   close_time,
-  is_closed
+  is_closed,
+  user_id
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
-RETURNING id, name, description, open_time, close_time, is_closed, created_at
+RETURNING id, name, description, open_time, close_time, is_closed, user_id, created_at
 `
 
 type CreateShopParams struct {
@@ -71,6 +72,7 @@ type CreateShopParams struct {
 	OpenTime    sql.NullTime   `json:"open_time"`
 	CloseTime   sql.NullTime   `json:"close_time"`
 	IsClosed    bool           `json:"is_closed"`
+	UserID      int64          `json:"user_id"`
 }
 
 func (q *Queries) CreateShop(ctx context.Context, arg CreateShopParams) (Shop, error) {
@@ -80,6 +82,7 @@ func (q *Queries) CreateShop(ctx context.Context, arg CreateShopParams) (Shop, e
 		arg.OpenTime,
 		arg.CloseTime,
 		arg.IsClosed,
+		arg.UserID,
 	)
 	var i Shop
 	err := row.Scan(
@@ -89,6 +92,7 @@ func (q *Queries) CreateShop(ctx context.Context, arg CreateShopParams) (Shop, e
 		&i.OpenTime,
 		&i.CloseTime,
 		&i.IsClosed,
+		&i.UserID,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -135,7 +139,7 @@ func (q *Queries) GetMenuItem(ctx context.Context, id int64) (MenuItem, error) {
 }
 
 const getShop = `-- name: GetShop :one
-SELECT id, name, description, open_time, close_time, is_closed, created_at FROM shops
+SELECT id, name, description, open_time, close_time, is_closed, user_id, created_at FROM shops
 WHERE id = $1 LIMIT 1
 `
 
@@ -149,9 +153,56 @@ func (q *Queries) GetShop(ctx context.Context, id int64) (Shop, error) {
 		&i.OpenTime,
 		&i.CloseTime,
 		&i.IsClosed,
+		&i.UserID,
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const getShopsAdmin = `-- name: GetShopsAdmin :many
+SELECT id, name, description, open_time, close_time, is_closed, user_id, created_at FROM shops
+WHERE user_id = $1
+ORDER BY id
+LIMIT $2
+OFFSET $3
+`
+
+type GetShopsAdminParams struct {
+	UserID int64 `json:"user_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetShopsAdmin(ctx context.Context, arg GetShopsAdminParams) ([]Shop, error) {
+	rows, err := q.db.QueryContext(ctx, getShopsAdmin, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Shop{}
+	for rows.Next() {
+		var i Shop
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.OpenTime,
+			&i.CloseTime,
+			&i.IsClosed,
+			&i.UserID,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listMenuItems = `-- name: ListMenuItems :many
@@ -200,7 +251,7 @@ func (q *Queries) ListMenuItems(ctx context.Context, arg ListMenuItemsParams) ([
 }
 
 const listShops = `-- name: ListShops :many
-SELECT id, name, description, open_time, close_time, is_closed, created_at FROM shops
+SELECT id, name, description, open_time, close_time, is_closed, user_id, created_at FROM shops
 ORDER BY id
 LIMIT $1
 OFFSET $2
@@ -227,6 +278,7 @@ func (q *Queries) ListShops(ctx context.Context, arg ListShopsParams) ([]Shop, e
 			&i.OpenTime,
 			&i.CloseTime,
 			&i.IsClosed,
+			&i.UserID,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -288,7 +340,7 @@ open_time = COALESCE($3, open_time),
 close_time = COALESCE($4, close_time),
 is_closed = COALESCE($5, is_closed)
 WHERE id = $6
-RETURNING id, name, description, open_time, close_time, is_closed, created_at
+RETURNING id, name, description, open_time, close_time, is_closed, user_id, created_at
 `
 
 type UpdateShopParams struct {
@@ -317,6 +369,7 @@ func (q *Queries) UpdateShop(ctx context.Context, arg UpdateShopParams) (Shop, e
 		&i.OpenTime,
 		&i.CloseTime,
 		&i.IsClosed,
+		&i.UserID,
 		&i.CreatedAt,
 	)
 	return i, err

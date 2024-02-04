@@ -4,9 +4,10 @@ INSERT INTO shops (
   description,
   open_time,
   close_time,
-  is_closed
+  is_closed,
+  user_id
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
 RETURNING *;
 
@@ -19,6 +20,13 @@ SELECT * FROM shops
 ORDER BY id
 LIMIT $1
 OFFSET $2;
+
+-- name: GetShopsAdmin :many
+SELECT * FROM shops
+WHERE user_id = $1
+ORDER BY id
+LIMIT $2
+OFFSET $3;
 
 -- name: UpdateShop :one
 UPDATE shops

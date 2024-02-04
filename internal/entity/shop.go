@@ -20,6 +20,7 @@ type CreateShop struct {
 	OpenTime    time.Time  `json:"open_time"`
 	CloseTime   time.Time  `json:"close_time"`
 	IsClosed    bool       `json:"is_closed"`
+	UserId      int64      `json:"user_id"`
 	Menuitems   []MenuItem `json:"menuitems"`
 }
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +15,7 @@ import (
 	db "github.com/zura-t/go_delivery_system-shops/pkg/db/sqlc"
 	"github.com/zura-t/go_delivery_system-shops/pkg/logger"
 	"github.com/zura-t/go_delivery_system-shops/rmq"
+	"os"
 )
 
 func Run(config *config.Config) {
@@ -65,7 +65,8 @@ func connectRabbitmq() (*amqp.Connection, error) {
 	var backOff = 1 * time.Second
 	var connection *amqp.Connection
 	for {
-		c, err := amqp.Dial("amqp://guest:guest@localhost:5672")
+		c, err := amqp.Dial("amqp://admin:password@rabbitmq:5672")
+
 		if err != nil {
 			fmt.Println("rabbitmq not yet ready")
 			counts++
@@ -86,7 +87,7 @@ func connectRabbitmq() (*amqp.Connection, error) {
 		time.Sleep(backOff)
 		continue
 	}
-
+	
 	return connection, nil
 }
 
