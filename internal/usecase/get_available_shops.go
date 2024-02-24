@@ -9,8 +9,8 @@ import (
 	db "github.com/zura-t/go_delivery_system-shops/pkg/db/sqlc"
 )
 
-func (uc *ShopUseCase) GetShops() ([]*entity.Shop, int, error) {
-	shops, err := uc.store.ListShops(context.Background(), db.ListShopsParams{})
+func (uc *ShopUseCase) GetShops(limit int32, offset int32) ([]*entity.Shop, int, error) {
+	shops, err := uc.store.ListShops(context.Background(), db.ListShopsParams{Limit: limit, Offset: offset})
 	if err != nil {
 		err = fmt.Errorf("failed to find shop list: %s", err)
 		return nil, http.StatusInternalServerError, err

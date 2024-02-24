@@ -71,7 +71,7 @@ func Test_delete_shop(t *testing.T) {
 			u := newTestServer(t, store)
 
 			tc.buildStub(store)
-			res, st, err := u.DeleteShop(tc.req)
+			res, st, err := u.DeleteShop(tc.req, shop.UserID)
 
 			tc.checkResponse(t, res, st, err)
 		})

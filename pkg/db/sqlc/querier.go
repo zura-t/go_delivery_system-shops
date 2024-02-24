@@ -12,7 +12,7 @@ type Querier interface {
 	CreateMenuItem(ctx context.Context, arg CreateMenuItemParams) (MenuItem, error)
 	CreateShop(ctx context.Context, arg CreateShopParams) (Shop, error)
 	DeleteMenuItem(ctx context.Context, id int64) error
-	DeleteShop(ctx context.Context, id int64) error
+	DeleteShop(ctx context.Context, arg DeleteShopParams) error
 	GetMenuItem(ctx context.Context, id int64) (MenuItem, error)
 	GetShop(ctx context.Context, id int64) (Shop, error)
 	GetShopsAdmin(ctx context.Context, arg GetShopsAdminParams) ([]Shop, error)

@@ -65,7 +65,7 @@ func Test_get_shops(t *testing.T) {
 			u := newTestServer(t, store)
 
 			tc.buildStubs(store)
-			res, st, err := u.GetShops()
+			res, st, err := u.GetShops(10, 0)
 
 			tc.checkResponse(t, res, st, err)
 		})

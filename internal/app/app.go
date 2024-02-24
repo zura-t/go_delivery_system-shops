@@ -15,7 +15,7 @@ import (
 	db "github.com/zura-t/go_delivery_system-shops/pkg/db/sqlc"
 	"github.com/zura-t/go_delivery_system-shops/pkg/logger"
 	"github.com/zura-t/go_delivery_system-shops/rmq"
-	"os"
+	// "os"
 )
 
 func Run(config *config.Config) {
@@ -29,12 +29,12 @@ func Run(config *config.Config) {
 		log.Fatal("can't create store:", err)
 	}
 
-	rabbitConn, err := connectRabbitmq()
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-	defer rabbitConn.Close()
+	// rabbitConn, err := connectRabbitmq()
+	// if err != nil {
+	// 	log.Println(err)
+	// 	os.Exit(1)
+	// }
+	// defer rabbitConn.Close()
 
 	l := logger.New(config.LogLevel)
 
@@ -57,7 +57,7 @@ func Run(config *config.Config) {
 func runGinServer(l *logger.Logger, config *config.Config, shopUsecase *usecase.ShopUseCase) {
 	handler := gin.New()
 	v1.NewRouter(handler, l, shopUsecase)
-	handler.Run(config.HttpServerAddress)
+	handler.Run(config.HttpPort)
 }
 
 func connectRabbitmq() (*amqp.Connection, error) {
@@ -65,7 +65,7 @@ func connectRabbitmq() (*amqp.Connection, error) {
 	var backOff = 1 * time.Second
 	var connection *amqp.Connection
 	for {
-		c, err := amqp.Dial("amqp://admin:password@rabbitmq:5672")
+		c, err := amqp.Dial("amqp://admin:admin@rabbitmq:5672")
 
 		if err != nil {
 			fmt.Println("rabbitmq not yet ready")
@@ -87,7 +87,7 @@ func connectRabbitmq() (*amqp.Connection, error) {
 		time.Sleep(backOff)
 		continue
 	}
-	
+
 	return connection, nil
 }
 

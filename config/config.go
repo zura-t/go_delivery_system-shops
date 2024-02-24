@@ -5,10 +5,11 @@ import (
 )
 
 type Config struct {
-	DBDriver             string        `mapstructure:"DB_DRIVER"`
-	DBSource             string        `mapstructure:"DB_SOURCE"`
-	HttpServerAddress    string        `mapstructure:"HTTP_SERVER_ADDRESS"`
-	LogLevel             string        `mapstructure:"LOG_LEVEL"`
+	DBDriver          string `mapstructure:"DB_DRIVER"`
+	DBSource          string `mapstructure:"DB_SOURCE"`
+	HttpServerAddress string `mapstructure:"HTTP_SERVER_ADDRESS"`
+	HttpPort          string `mapstructure:"HTTP_PORT"`
+	LogLevel          string `mapstructure:"LOG_LEVEL"`
 }
 
 func LoadConfig(path string) (config *Config, err error) {

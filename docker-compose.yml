@@ -12,11 +12,12 @@ services:
       mode: replicated
       replicas: 1
     environment:
-      DSN: "host=postgres port=5402 user=postgres password=password dbname=shops sslmode=disable timezone=UTC connect_timeout=5"
+      DSN: "host=postgres port=5432 user=postgres password=password dbname=shops sslmode=disable timezone=UTC connect_timeout=5"
     depends_on:
       - postgres
     networks:
       - localnet
+      - shops
 
   postgres:
     image: "postgres:14.2"
@@ -32,7 +33,11 @@ services:
       POSTGRES_DB: shops
     volumes:
       - ./db-data/postgres/:/var/lib/postgresql/data/
+    networks:
+      - shops
 
 networks:
   localnet:
     external: true
+  shops:
+    driver: bridge

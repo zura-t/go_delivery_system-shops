@@ -80,7 +80,7 @@ func (mr *MockStoreMockRecorder) DeleteMenuItem(arg0, arg1 interface{}) *gomock.
 }
 
 // DeleteShop mocks base method.
-func (m *MockStore) DeleteShop(arg0 context.Context, arg1 int64) error {
+func (m *MockStore) DeleteShop(arg0 context.Context, arg1 db.DeleteShopParams) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteShop", arg0, arg1)
 	ret0, _ := ret[0].(error)

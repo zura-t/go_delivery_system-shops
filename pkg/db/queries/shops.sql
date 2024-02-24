@@ -36,7 +36,7 @@ description = COALESCE(sqlc.narg(description), description),
 open_time = COALESCE(sqlc.narg(open_time), open_time),
 close_time = COALESCE(sqlc.narg(close_time), close_time),
 is_closed = COALESCE(sqlc.narg(is_closed), is_closed)
-WHERE id = sqlc.arg(id)
+WHERE id = sqlc.arg(id) and user_id = sqlc.arg(user_id)
 RETURNING *;
 
 -- name: CreateMenuItem :one
@@ -53,7 +53,7 @@ RETURNING *;
 
 -- name: DeleteShop :exec
 DELETE FROM shops
-WHERE id = $1;
+WHERE id = $1 and user_id = $2;
 
 -- name: GetMenuItem :one
 SELECT * FROM "menuItems"

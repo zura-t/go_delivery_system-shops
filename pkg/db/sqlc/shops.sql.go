@@ -110,11 +110,16 @@ func (q *Queries) DeleteMenuItem(ctx context.Context, id int64) error {
 
 const deleteShop = `-- name: DeleteShop :exec
 DELETE FROM shops
-WHERE id = $1
+WHERE id = $1 and user_id = $2
 `
 
-func (q *Queries) DeleteShop(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteShop, id)
+type DeleteShopParams struct {
+	ID     int64 `json:"id"`
+	UserID int64 `json:"user_id"`
+}
+
+func (q *Queries) DeleteShop(ctx context.Context, arg DeleteShopParams) error {
+	_, err := q.db.ExecContext(ctx, deleteShop, arg.ID, arg.UserID)
 	return err
 }
 
@@ -339,7 +344,7 @@ description = COALESCE($2, description),
 open_time = COALESCE($3, open_time),
 close_time = COALESCE($4, close_time),
 is_closed = COALESCE($5, is_closed)
-WHERE id = $6
+WHERE id = $6 and user_id = $7
 RETURNING id, name, description, open_time, close_time, is_closed, user_id, created_at
 `
 
@@ -350,6 +355,7 @@ type UpdateShopParams struct {
 	CloseTime   sql.NullTime   `json:"close_time"`
 	IsClosed    sql.NullBool   `json:"is_closed"`
 	ID          int64          `json:"id"`
+	UserID      int64          `json:"user_id"`
 }
 
 func (q *Queries) UpdateShop(ctx context.Context, arg UpdateShopParams) (Shop, error) {
@@ -360,6 +366,7 @@ func (q *Queries) UpdateShop(ctx context.Context, arg UpdateShopParams) (Shop, e
 		arg.CloseTime,
 		arg.IsClosed,
 		arg.ID,
+		arg.UserID,
 	)
 	var i Shop
 	err := row.Scan(

@@ -15,13 +15,25 @@ type shopRoutes struct {
 	logger      logger.Interface
 }
 
-func newShopRoutes(handler *gin.RouterGroup, shopUsecase usecase.Shop, logger logger.Interface) {
+func newShopRoutes(handler *gin.Engine, shopUsecase usecase.Shop, logger logger.Interface) {
 	routes := &shopRoutes{shopUsecase, logger}
 
-	handler.POST("/shops", routes.createShop)
-	// handler.POST("/shops", routes.loginUser)
-	// handler.POST("/shops", routes.logout)
-	// handler.POST("/renew_token", server.renewAccessToken)
+	shopsRoutes := handler.Group("/shops")
+
+	shopsRoutes.POST("/", routes.createShop)
+	shopsRoutes.GET("/:id", routes.getShopInfo)
+	shopsRoutes.GET("/", routes.getShops)
+	shopsRoutes.GET("/admin", routes.getShopsAdmin)
+	shopsRoutes.PATCH("/:id", routes.updateShop)
+	shopsRoutes.DELETE("/:id", routes.deleteShop)
+
+	menuItemRoutes := handler.Group("/menu_items")
+
+	menuItemRoutes.POST("/", routes.createMenu)
+	menuItemRoutes.GET("/list/", routes.getMenu)
+	menuItemRoutes.PATCH("/:id", routes.updateMenuItem)
+	menuItemRoutes.GET("/:id", routes.getMenuItem)
+	menuItemRoutes.DELETE("/:id", routes.deleteMenuItem)
 }
 
 type CreateShopRequest struct {
@@ -29,7 +41,8 @@ type CreateShopRequest struct {
 	Description string    `json:"description"`
 	OpenTime    time.Time `json:"open_time" binding:"required"`
 	CloseTime   time.Time `json:"close_time" binding:"required"`
-	IsClosed    bool      `json:"is_closed" binding:"required"`
+	UserId      int64     `json:"user_id" binding:"required,min=1"`
+	IsClosed    bool      `json:"is_closed"`
 }
 
 func (r *shopRoutes) createShop(ctx *gin.Context) {
@@ -44,6 +57,7 @@ func (r *shopRoutes) createShop(ctx *gin.Context) {
 		Description: req.Description,
 		OpenTime:    req.OpenTime,
 		CloseTime:   req.CloseTime,
+		UserId:      req.UserId,
 		IsClosed:    req.IsClosed,
 	})
 	if err != nil {
@@ -59,8 +73,19 @@ type IdParam struct {
 	Id int64 `uri:"id" binding:"required,min=1"`
 }
 
+type GetShopsRequest struct {
+	Limit  int32 `form:"limit"`
+	Offset int32 `form:"offset"`
+}
+
 func (r *shopRoutes) getShops(ctx *gin.Context) {
-	shops, st, err := r.shopUsecase.GetShops()
+	var req GetShopsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		errorResponse(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+	shops, st, err := r.shopUsecase.GetShops(req.Limit, req.Offset)
+
 	if err != nil {
 		r.logger.Error(err, "package: v1", "http - v1 - GetShops")
 		errorResponse(ctx, st, err.Error())
@@ -71,7 +96,7 @@ func (r *shopRoutes) getShops(ctx *gin.Context) {
 }
 
 type UserIdQuery struct {
-	UserId int64 `form:"id" binding:"required,min=1"`
+	UserId int64 `form:"user_id" binding:"required,min=1"`
 }
 
 func (r *shopRoutes) getShopsAdmin(ctx *gin.Context) {
@@ -183,6 +208,7 @@ type UpdateShopRequest struct {
 	OpenTime    time.Time `json:"open_time"`
 	CloseTime   time.Time `json:"close_time"`
 	IsClosed    bool      `json:"is_closed"`
+	UserId      int64     `json:"user_id"`
 }
 
 func (r *shopRoutes) updateShop(ctx *gin.Context) {
@@ -204,6 +230,7 @@ func (r *shopRoutes) updateShop(ctx *gin.Context) {
 		OpenTime:    req.OpenTime,
 		CloseTime:   req.CloseTime,
 		IsClosed:    req.IsClosed,
+		UserId:      req.UserId,
 	}
 	shopUpdated, st, err := r.shopUsecase.UpdateShop(params.Id, request)
 	if err != nil {
@@ -256,7 +283,15 @@ func (r *shopRoutes) deleteShop(ctx *gin.Context) {
 		errorResponse(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
-	res, st, err := r.shopUsecase.DeleteShop(req.Id)
+
+	var params UserIdQuery
+	if err := ctx.ShouldBindQuery(&params); err != nil {
+		r.logger.Error(err, "http - v1 - shop routes - deleteShop")
+		errorResponse(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	res, st, err := r.shopUsecase.DeleteShop(req.Id, params.UserId)
 	if err != nil {
 		r.logger.Error(err, "package: v1", "http - v1 - DeleteShop")
 		errorResponse(ctx, st, err.Error())
