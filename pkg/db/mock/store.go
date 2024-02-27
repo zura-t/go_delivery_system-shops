@@ -124,7 +124,7 @@ func (mr *MockStoreMockRecorder) GetShop(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // GetShopsAdmin mocks base method.
-func (m *MockStore) GetShopsAdmin(arg0 context.Context, arg1 db.GetShopsAdminParams) ([]db.Shop, error) {
+func (m *MockStore) GetShopsAdmin(arg0 context.Context, arg1 int64) ([]db.Shop, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetShopsAdmin", arg0, arg1)
 	ret0, _ := ret[0].([]db.Shop)
@@ -139,7 +139,7 @@ func (mr *MockStoreMockRecorder) GetShopsAdmin(arg0, arg1 interface{}) *gomock.C
 }
 
 // ListMenuItems mocks base method.
-func (m *MockStore) ListMenuItems(arg0 context.Context, arg1 db.ListMenuItemsParams) ([]db.MenuItem, error) {
+func (m *MockStore) ListMenuItems(arg0 context.Context, arg1 int64) ([]db.MenuItem, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListMenuItems", arg0, arg1)
 	ret0, _ := ret[0].([]db.MenuItem)

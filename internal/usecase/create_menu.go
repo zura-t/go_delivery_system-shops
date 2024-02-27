@@ -10,22 +10,28 @@ import (
 	db "github.com/zura-t/go_delivery_system-shops/pkg/db/sqlc"
 )
 
-func (uc *ShopUseCase) CreateMenu(req []*entity.CreateMenuItem) ([]*entity.MenuItem, int, error) {
-	menu := make([]*entity.MenuItem, len(req))
+func (uc *ShopUseCase) CreateMenu(req *entity.CreateMenuItem) ([]*entity.GetMenuItem, int, error) {
+	shop, err := uc.store.GetShop(context.Background(), req.ShopId)
+	if shop.UserID != req.UserId {
+		err = fmt.Errorf("you are not an admin: %s", err)
+		return nil, http.StatusBadRequest, err
+	}
 
-	for i := 0; i < len(req); i++ {
+	menu := make([]*entity.GetMenuItem, len(req.MenuItems))
+
+	for i := 0; i < len(req.MenuItems); i++ {
 		arg := db.CreateMenuItemParams{
-			Name: req[i].Name,
+			Name: req.MenuItems[i].Name,
 			Description: sql.NullString{
-				String: req[i].Description,
+				String: req.MenuItems[i].Description,
 				Valid:  true,
 			},
 			Photo: sql.NullString{
-				String: req[i].Photo,
+				String: req.MenuItems[i].Photo,
 				Valid:  true,
 			},
-			Price:  req[i].Price,
-			ShopID: req[i].ShopID,
+			Price:  req.MenuItems[i].Price,
+			ShopID: req.ShopId,
 		}
 
 		menuItem, err := uc.store.CreateMenuItem(context.Background(), arg)

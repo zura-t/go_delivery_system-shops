@@ -15,22 +15,28 @@ type Shop struct {
 }
 
 type CreateShop struct {
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	OpenTime    time.Time  `json:"open_time"`
-	CloseTime   time.Time  `json:"close_time"`
-	IsClosed    bool       `json:"is_closed"`
-	UserId      int64      `json:"user_id"`
-	Menuitems   []MenuItem `json:"menuitems"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	OpenTime    time.Time `json:"open_time"`
+	CloseTime   time.Time `json:"close_time"`
+	IsClosed    bool      `json:"is_closed"`
+	UserId      int64     `json:"user_id"`
 }
 
 type MenuItem struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Photo       string `json:"photo"`
+	Price       int32  `json:"price"`
+}
+
+type GetMenuItem struct {
 	ID          int64     `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Photo       string    `json:"photo"`
 	Price       int32     `json:"price"`
-	Shop        int64     `json:"shop_id"`
+	ShopId      int64     `json:"shop_id"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
@@ -44,11 +50,9 @@ type UpdateShopInfo struct {
 }
 
 type CreateMenuItem struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Photo       string `json:"photo"`
-	Price       int32  `json:"price"`
-	ShopID      int64  `json:"shop_id"`
+	MenuItems []MenuItem `json:"menu_items"`
+	ShopId    int64      `json:"shop_id"`
+	UserId    int64      `json:"user_id"`
 }
 
 type UpdateMenuItem struct {

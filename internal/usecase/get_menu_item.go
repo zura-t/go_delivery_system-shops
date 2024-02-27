@@ -9,7 +9,7 @@ import (
 	"github.com/zura-t/go_delivery_system-shops/internal/entity"
 )
 
-func (uc *ShopUseCase) GetMenuItem(id int64) (*entity.MenuItem, int, error) {
+func (uc *ShopUseCase) GetMenuItem(id int64) (*entity.GetMenuItem, int, error) {
 	i, err := uc.store.GetMenuItem(context.Background(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {

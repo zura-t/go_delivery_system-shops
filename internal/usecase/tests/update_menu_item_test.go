@@ -27,7 +27,7 @@ func Test_update_menu_item(t *testing.T) {
 		name          string
 		req           *UpdateMenuItemRequest
 		buildStub     func(store *mockdb.MockStore)
-		checkResponse func(t *testing.T, res *entity.MenuItem, st int, err error)
+		checkResponse func(t *testing.T, res *entity.GetMenuItem, st int, err error)
 	}{
 		{
 			name: "OK",
@@ -69,7 +69,7 @@ func Test_update_menu_item(t *testing.T) {
 					Times(1).
 					Return(menuItemUpdated, nil)
 			},
-			checkResponse: func(t *testing.T, res *entity.MenuItem, st int, err error) {
+			checkResponse: func(t *testing.T, res *entity.GetMenuItem, st int, err error) {
 				require.NoError(t, err)
 				require.NotNil(t, res)
 				updatedMenuItem := res
@@ -91,7 +91,7 @@ func Test_update_menu_item(t *testing.T) {
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().UpdateMenuItem(gomock.Any(), gomock.Any()).Times(1).Return(db.MenuItem{}, sql.ErrNoRows)
 			},
-			checkResponse: func(t *testing.T, res *entity.MenuItem, st int, err error) {
+			checkResponse: func(t *testing.T, res *entity.GetMenuItem, st int, err error) {
 				require.Error(t, err)
 				require.Empty(t, res)
 				require.Equal(t, http.StatusNotFound, st)
@@ -108,7 +108,7 @@ func Test_update_menu_item(t *testing.T) {
 					Times(1).
 					Return(db.MenuItem{}, sql.ErrConnDone)
 			},
-			checkResponse: func(t *testing.T, res *entity.MenuItem, st int, err error) {
+			checkResponse: func(t *testing.T, res *entity.GetMenuItem, st int, err error) {
 				require.Error(t, err)
 				require.Equal(t, http.StatusInternalServerError, st)
 			},

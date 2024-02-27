@@ -15,8 +15,8 @@ type Querier interface {
 	DeleteShop(ctx context.Context, arg DeleteShopParams) error
 	GetMenuItem(ctx context.Context, id int64) (MenuItem, error)
 	GetShop(ctx context.Context, id int64) (Shop, error)
-	GetShopsAdmin(ctx context.Context, arg GetShopsAdminParams) ([]Shop, error)
-	ListMenuItems(ctx context.Context, arg ListMenuItemsParams) ([]MenuItem, error)
+	GetShopsAdmin(ctx context.Context, userID int64) ([]Shop, error)
+	ListMenuItems(ctx context.Context, shopID int64) ([]MenuItem, error)
 	ListShops(ctx context.Context, arg ListShopsParams) ([]Shop, error)
 	UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) (MenuItem, error)
 	UpdateShop(ctx context.Context, arg UpdateShopParams) (Shop, error)

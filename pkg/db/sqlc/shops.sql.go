@@ -167,19 +167,10 @@ func (q *Queries) GetShop(ctx context.Context, id int64) (Shop, error) {
 const getShopsAdmin = `-- name: GetShopsAdmin :many
 SELECT id, name, description, open_time, close_time, is_closed, user_id, created_at FROM shops
 WHERE user_id = $1
-ORDER BY id
-LIMIT $2
-OFFSET $3
 `
 
-type GetShopsAdminParams struct {
-	UserID int64 `json:"user_id"`
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
-
-func (q *Queries) GetShopsAdmin(ctx context.Context, arg GetShopsAdminParams) ([]Shop, error) {
-	rows, err := q.db.QueryContext(ctx, getShopsAdmin, arg.UserID, arg.Limit, arg.Offset)
+func (q *Queries) GetShopsAdmin(ctx context.Context, userID int64) ([]Shop, error) {
+	rows, err := q.db.QueryContext(ctx, getShopsAdmin, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -212,20 +203,12 @@ func (q *Queries) GetShopsAdmin(ctx context.Context, arg GetShopsAdminParams) ([
 
 const listMenuItems = `-- name: ListMenuItems :many
 SELECT id, name, description, photo, price, shop_id, created_at FROM "menuItems"
-WHERE shop_id = $3
-ORDER BY id
-LIMIT $1
-OFFSET $2
+WHERE shop_id = $1
+ORDER BY name
 `
 
-type ListMenuItemsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-	ShopID int64 `json:"shop_id"`
-}
-
-func (q *Queries) ListMenuItems(ctx context.Context, arg ListMenuItemsParams) ([]MenuItem, error) {
-	rows, err := q.db.QueryContext(ctx, listMenuItems, arg.Limit, arg.Offset, arg.ShopID)
+func (q *Queries) ListMenuItems(ctx context.Context, shopID int64) ([]MenuItem, error) {
+	rows, err := q.db.QueryContext(ctx, listMenuItems, shopID)
 	if err != nil {
 		return nil, err
 	}

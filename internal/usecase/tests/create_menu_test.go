@@ -26,8 +26,8 @@ func randomMenuItem() *db.MenuItem {
 	}
 }
 
-func randomMenuItemReq() *entity.CreateMenuItem {
-	return &entity.CreateMenuItem{
+func randomMenuItemReq() entity.MenuItem {
+	return entity.MenuItem{
 		Name:        pkg.RandomString(6),
 		Description: pkg.RandomString(10),
 		Price:       int32(pkg.RandomInt(10, 50)),
@@ -46,11 +46,14 @@ func randomMenuItemDbReq() *db.CreateMenuItemParams {
 }
 
 func Test_create_menu(t *testing.T) {
-	// shop := randomShop()
+	shop := randomShop()
 	n := 5
-	req := make([]*entity.CreateMenuItem, n)
+	req := &entity.CreateMenuItem{}
+
+	req.MenuItems = make([]entity.MenuItem, n)
 	for i := 0; i < n; i++ {
-		req[i] = randomMenuItemReq()
+		req.MenuItems[i] = randomMenuItemReq()
+		req.ShopId = shop.ID
 	}
 
 	reqToDb := make([]db.CreateMenuItemParams, n)
@@ -65,20 +68,22 @@ func Test_create_menu(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		req           []*entity.CreateMenuItem
+		req           *entity.CreateMenuItem
 		buildStub     func(store *mockdb.MockStore)
-		checkResponse func(t *testing.T, res []*entity.MenuItem, st int, err error)
+		checkResponse func(t *testing.T, res []*entity.GetMenuItem, st int, err error)
 	}{
 		{
 			name: "OK",
 			req:  req,
 			buildStub: func(store *mockdb.MockStore) {
-					store.EXPECT().CreateMenuItem(gomock.Any(), reqToDb[0]).
+				store.EXPECT().GetShop(gomock.Any(), shop.ID).
 					Times(n)
-				
+				store.EXPECT().CreateMenuItem(gomock.Any(), reqToDb[0]).
+					Times(n)
+
 				// Return(menuItemCreated, nil)
 			},
-			checkResponse: func(t *testing.T, res []*entity.MenuItem, st int, err error) {
+			checkResponse: func(t *testing.T, res []*entity.GetMenuItem, st int, err error) {
 				require.NoError(t, err)
 				require.NotNil(t, res)
 				require.Equal(t, http.StatusOK, st)
@@ -88,11 +93,14 @@ func Test_create_menu(t *testing.T) {
 			name: "InternalError",
 			req:  req,
 			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetShop(gomock.Any(), shop.ID).
+				Times(n)
+
 				store.EXPECT().CreateMenuItem(gomock.Any(), gomock.Any()).
-					Times(1).
+					Times(n).
 					Return(db.MenuItem{}, sql.ErrConnDone)
 			},
-			checkResponse: func(t *testing.T, res []*entity.MenuItem, st int, err error) {
+			checkResponse: func(t *testing.T, res []*entity.GetMenuItem, st int, err error) {
 				require.Error(t, err)
 				require.Equal(t, http.StatusInternalServerError, st)
 			},

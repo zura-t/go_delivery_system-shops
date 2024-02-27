@@ -19,7 +19,7 @@ func Test_get_menu_item(t *testing.T) {
 		name          string
 		req           int64
 		buildStub     func(store *mockdb.MockStore)
-		checkResponse func(t *testing.T, res *entity.MenuItem, st int, err error)
+		checkResponse func(t *testing.T, res *entity.GetMenuItem, st int, err error)
 	}{
 		{
 			name: "OK",
@@ -29,7 +29,7 @@ func Test_get_menu_item(t *testing.T) {
 					Times(1).
 					Return(*menuItem, nil)
 			},
-			checkResponse: func(t *testing.T, res *entity.MenuItem, st int, err error) {
+			checkResponse: func(t *testing.T, res *entity.GetMenuItem, st int, err error) {
 				require.NoError(t, err)
 				require.NotNil(t, res)
 				require.Equal(t, menuItem.Name, res.Name)
@@ -42,7 +42,7 @@ func Test_get_menu_item(t *testing.T) {
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().GetMenuItem(gomock.Any(), gomock.Any()).Times(1).Return(db.MenuItem{}, sql.ErrNoRows)
 			},
-			checkResponse: func(t *testing.T, res *entity.MenuItem, st int, err error) {
+			checkResponse: func(t *testing.T, res *entity.GetMenuItem, st int, err error) {
 				require.Error(t, err)
 				require.Empty(t, res)
 				require.Equal(t, http.StatusNotFound, st)
@@ -56,7 +56,7 @@ func Test_get_menu_item(t *testing.T) {
 					Times(1).
 					Return(db.MenuItem{}, sql.ErrConnDone)
 			},
-			checkResponse: func(t *testing.T, res *entity.MenuItem, st int, err error) {
+			checkResponse: func(t *testing.T, res *entity.GetMenuItem, st int, err error) {
 				require.Error(t, err)
 				require.Equal(t, http.StatusInternalServerError, st)
 			},

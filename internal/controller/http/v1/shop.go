@@ -30,7 +30,7 @@ func newShopRoutes(handler *gin.Engine, shopUsecase usecase.Shop, logger logger.
 	menuItemRoutes := handler.Group("/menu_items")
 
 	menuItemRoutes.POST("/", routes.createMenu)
-	menuItemRoutes.GET("/list/", routes.getMenu)
+	menuItemRoutes.GET("/list/:id", routes.getMenu)
 	menuItemRoutes.PATCH("/:id", routes.updateMenuItem)
 	menuItemRoutes.GET("/:id", routes.getMenuItem)
 	menuItemRoutes.DELETE("/:id", routes.deleteMenuItem)
@@ -132,31 +132,40 @@ func (r *shopRoutes) getShopInfo(ctx *gin.Context) {
 	ctx.JSON(st, shop)
 }
 
+type MenuItem struct {
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description"`
+	Photo       string `json:"photo"`
+	Price       int32  `json:"price" binding:"required,min=1"`
+}
+
 type CreateMenuRequest struct {
-	menuItems []struct {
-		Name        string `json:"name" binding:"required"`
-		Description string `json:"description"`
-		Photo       string `json:"photo"`
-		Price       int32  `json:"price" binding:"required,min=1"`
-		ShopID      int64  `json:"shop_id" binding:"required,min=1"`
-	}
+	MenuItems []MenuItem `json:"menu_items" binding:"required,min=1"`
+	ShopId    int64      `json:"shop_id" binding:"required,min=1"`
+	UserId    int64      `json:"user_id" binding:"required,min=1"`
 }
 
 func (r *shopRoutes) createMenu(ctx *gin.Context) {
-	var req CreateMenuRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	var reqs CreateMenuRequest
+	if err := ctx.ShouldBind(&reqs); err != nil {
 		errorResponse(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
-	request := make([]*entity.CreateMenuItem, len(req.menuItems))
-	for i := 0; i < len(request); i++ {
-		request[i] = &entity.CreateMenuItem{
-			Name:        req.menuItems[i].Name,
-			Description: req.menuItems[i].Description,
-			Price:       req.menuItems[i].Price,
+
+	var menuItems = make([]entity.MenuItem, len(reqs.MenuItems))
+	for i := 0; i < len(reqs.MenuItems); i++ {
+		menuItems[i] = entity.MenuItem{
+			Name:        reqs.MenuItems[i].Name,
+			Description: reqs.MenuItems[i].Description,
+			Price:       reqs.MenuItems[i].Price,
 		}
 	}
-	menuCreated, st, err := r.shopUsecase.CreateMenu(request)
+
+	menuCreated, st, err := r.shopUsecase.CreateMenu(&entity.CreateMenuItem{
+		MenuItems: menuItems,
+		ShopId:    reqs.ShopId,
+		UserId:    reqs.UserId,
+	})
 	if err != nil {
 		r.logger.Error(err, "package: v1", "http - v1 - CreateMenu")
 		errorResponse(ctx, st, err.Error())
@@ -176,14 +185,15 @@ func (r *shopRoutes) getMenu(ctx *gin.Context) {
 		errorResponse(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
-	menu, st, err := r.shopUsecase.GetMenu(req.ShopId)
+
+	menuitems, st, err := r.shopUsecase.GetMenu(req.ShopId)
 	if err != nil {
 		r.logger.Error(err, "package: v1", "http - v1 - GetMenu")
 		errorResponse(ctx, st, err.Error())
 		return
 	}
 
-	ctx.JSON(st, menu)
+	ctx.JSON(st, menuitems)
 }
 
 func (r *shopRoutes) getMenuItem(ctx *gin.Context) {

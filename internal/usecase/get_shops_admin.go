@@ -6,11 +6,10 @@ import (
 	"net/http"
 
 	"github.com/zura-t/go_delivery_system-shops/internal/entity"
-	db "github.com/zura-t/go_delivery_system-shops/pkg/db/sqlc"
 )
 
 func (uc *ShopUseCase) GetShopsAdmin(user_id int64) ([]*entity.Shop, int, error) {
-	shops, err := uc.store.GetShopsAdmin(context.Background(), db.GetShopsAdminParams{UserID: user_id})
+	shops, err := uc.store.GetShopsAdmin(context.Background(), user_id)
 	if err != nil {
 		err = fmt.Errorf("failed to find shop list: %s", err)
 		return nil, http.StatusInternalServerError, err

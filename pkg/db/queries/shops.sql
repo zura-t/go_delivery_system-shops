@@ -23,10 +23,7 @@ OFFSET $2;
 
 -- name: GetShopsAdmin :many
 SELECT * FROM shops
-WHERE user_id = $1
-ORDER BY id
-LIMIT $2
-OFFSET $3;
+WHERE user_id = $1;
 
 -- name: UpdateShop :one
 UPDATE shops
@@ -61,10 +58,8 @@ WHERE id = $1 LIMIT 1;
 
 -- name: ListMenuItems :many
 SELECT * FROM "menuItems"
-WHERE shop_id = $3
-ORDER BY id
-LIMIT $1
-OFFSET $2;
+WHERE shop_id = $1
+ORDER BY name;
 
 -- name: UpdateMenuItem :one
 UPDATE "menuItems"

@@ -33,9 +33,7 @@ func Test_get_shops_admin(t *testing.T) {
 			req:  user_id,
 			buildStubs: func(user_id int64, store *mockdb.MockStore) {
 				store.EXPECT().
-					GetShopsAdmin(gomock.Any(), db.GetShopsAdminParams{
-						UserID: user_id,
-					}).
+					GetShopsAdmin(gomock.Any(), user_id).
 					Times(1).
 					Return(shops, nil)
 			},
@@ -49,9 +47,7 @@ func Test_get_shops_admin(t *testing.T) {
 			name: "InternalError",
 			buildStubs: func(user_id int64, store *mockdb.MockStore) {
 				store.EXPECT().
-					GetShopsAdmin(gomock.Any(), db.GetShopsAdminParams{
-						UserID: user_id,
-					}).
+					GetShopsAdmin(gomock.Any(), user_id).
 					Times(1).
 					Return([]db.Shop{}, sql.ErrConnDone)
 			},

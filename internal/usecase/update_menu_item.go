@@ -11,7 +11,7 @@ import (
 	db "github.com/zura-t/go_delivery_system-shops/pkg/db/sqlc"
 )
 
-func (uc *ShopUseCase) UpdateMenuItem(id int64, req *entity.UpdateMenuItem) (*entity.MenuItem, int, error) {
+func (uc *ShopUseCase) UpdateMenuItem(id int64, req *entity.UpdateMenuItem) (*entity.GetMenuItem, int, error) {
 	arg := db.UpdateMenuItemParams{
 		ID: id,
 		Name: sql.NullString{
