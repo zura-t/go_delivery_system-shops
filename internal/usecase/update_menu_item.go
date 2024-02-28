@@ -12,6 +12,12 @@ import (
 )
 
 func (uc *ShopUseCase) UpdateMenuItem(id int64, req *entity.UpdateMenuItem) (*entity.GetMenuItem, int, error) {
+	shop, err := uc.store.GetShopWithMenuItemId(context.Background(), id)
+	if shop.UserID != req.UserId {
+		err = fmt.Errorf("failed to update menu item: %s", err)
+		return nil, http.StatusLocked, err
+	}
+
 	arg := db.UpdateMenuItemParams{
 		ID: id,
 		Name: sql.NullString{

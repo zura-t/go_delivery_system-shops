@@ -176,7 +176,7 @@ func (r *shopRoutes) createMenu(ctx *gin.Context) {
 }
 
 type GetMenuReq struct {
-	ShopId int64 `uri:"id"  binding:"required,min=1"`
+	ShopId int64 `uri:"id" binding:"required,min=1"`
 }
 
 func (r *shopRoutes) getMenu(ctx *gin.Context) {
@@ -218,7 +218,7 @@ type UpdateShopRequest struct {
 	OpenTime    time.Time `json:"open_time"`
 	CloseTime   time.Time `json:"close_time"`
 	IsClosed    bool      `json:"is_closed"`
-	UserId      int64     `json:"user_id"`
+	UserId      int64     `json:"user_id" binding:"required,min=1"`
 }
 
 func (r *shopRoutes) updateShop(ctx *gin.Context) {
@@ -257,6 +257,7 @@ type UpdateMenuItemRequest struct {
 	Description string `json:"description"`
 	Photo       string `json:"photo"`
 	Price       int32  `json:"price"`
+	UserId      int64  `json:"user_id" binding:"required,min=1"`
 }
 
 func (r *shopRoutes) updateMenuItem(ctx *gin.Context) {
@@ -276,6 +277,7 @@ func (r *shopRoutes) updateMenuItem(ctx *gin.Context) {
 		Name:        req.Name,
 		Description: req.Description,
 		Price:       req.Price,
+		UserId:      req.UserId,
 	}
 	shopUpdated, st, err := r.shopUsecase.UpdateMenuItem(params.Id, request)
 	if err != nil {
@@ -317,7 +319,15 @@ func (r *shopRoutes) deleteMenuItem(ctx *gin.Context) {
 		errorResponse(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
-	res, st, err := r.shopUsecase.DeleteMenuItem(req.Id)
+
+	var reqQ UserIdQuery
+	if err := ctx.ShouldBindQuery(&reqQ); err != nil {
+		r.logger.Error(err, "http - v1 - shop routes - deleteShop")
+		errorResponse(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	res, st, err := r.shopUsecase.DeleteMenuItem(req.Id, reqQ.UserId)
 	if err != nil {
 		r.logger.Error(err, "package: v1", "http - v1 - DeleteMenuItem()")
 		errorResponse(ctx, st, err.Error())

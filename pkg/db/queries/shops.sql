@@ -13,7 +13,12 @@ RETURNING *;
 
 -- name: GetShop :one
 SELECT * FROM shops
-WHERE id = $1 LIMIT 1;
+WHERE id = $1;
+
+-- name: GetShopWithMenuItemId :one
+SELECT * FROM "menuItems"
+JOIN shops ON "menuItems".shop_id = shops.id
+WHERE "menuItems".id = $1;
 
 -- name: ListShops :many
 SELECT * FROM shops

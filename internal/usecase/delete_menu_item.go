@@ -7,8 +7,14 @@ import (
 	"net/http"
 )
 
-func (uc *ShopUseCase) DeleteMenuItem(id int64) (string, int, error) {
-	err := uc.store.DeleteMenuItem(context.Background(), id)
+func (uc *ShopUseCase) DeleteMenuItem(id int64, user_id int64) (string, int, error) {
+	shop, err := uc.store.GetShopWithMenuItemId(context.Background(), id)
+	if shop.UserID != user_id {
+		err = fmt.Errorf("failed to delete menu item: %s", err)
+		return "", http.StatusLocked, err
+	}
+
+	err = uc.store.DeleteMenuItem(context.Background(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = fmt.Errorf("menu item not found: %s", err)

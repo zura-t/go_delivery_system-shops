@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createMenuItem = `-- name: CreateMenuItem :one
@@ -145,7 +146,7 @@ func (q *Queries) GetMenuItem(ctx context.Context, id int64) (MenuItem, error) {
 
 const getShop = `-- name: GetShop :one
 SELECT id, name, description, open_time, close_time, is_closed, user_id, created_at FROM shops
-WHERE id = $1 LIMIT 1
+WHERE id = $1
 `
 
 func (q *Queries) GetShop(ctx context.Context, id int64) (Shop, error) {
@@ -160,6 +161,53 @@ func (q *Queries) GetShop(ctx context.Context, id int64) (Shop, error) {
 		&i.IsClosed,
 		&i.UserID,
 		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getShopWithMenuItemId = `-- name: GetShopWithMenuItemId :one
+SELECT "menuItems".id, "menuItems".name, "menuItems".description, photo, price, shop_id, "menuItems".created_at, shops.id, shops.name, shops.description, open_time, close_time, is_closed, user_id, shops.created_at FROM "menuItems"
+JOIN shops ON "menuItems".shop_id = shops.id
+WHERE "menuItems".id = $1
+`
+
+type GetShopWithMenuItemIdRow struct {
+	ID            int64          `json:"id"`
+	Name          string         `json:"name"`
+	Description   sql.NullString `json:"description"`
+	Photo         sql.NullString `json:"photo"`
+	Price         int32          `json:"price"`
+	ShopID        int64          `json:"shop_id"`
+	CreatedAt     time.Time      `json:"created_at"`
+	ID_2          int64          `json:"id_2"`
+	Name_2        string         `json:"name_2"`
+	Description_2 sql.NullString `json:"description_2"`
+	OpenTime      sql.NullTime   `json:"open_time"`
+	CloseTime     sql.NullTime   `json:"close_time"`
+	IsClosed      bool           `json:"is_closed"`
+	UserID        int64          `json:"user_id"`
+	CreatedAt_2   time.Time      `json:"created_at_2"`
+}
+
+func (q *Queries) GetShopWithMenuItemId(ctx context.Context, id int64) (GetShopWithMenuItemIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getShopWithMenuItemId, id)
+	var i GetShopWithMenuItemIdRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Photo,
+		&i.Price,
+		&i.ShopID,
+		&i.CreatedAt,
+		&i.ID_2,
+		&i.Name_2,
+		&i.Description_2,
+		&i.OpenTime,
+		&i.CloseTime,
+		&i.IsClosed,
+		&i.UserID,
+		&i.CreatedAt_2,
 	)
 	return i, err
 }

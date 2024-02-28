@@ -13,5 +13,5 @@ type Shop interface {
 	UpdateMenuItem(id int64, req *entity.UpdateMenuItem) (*entity.GetMenuItem, int, error)
 	GetMenuItem(id int64) (*entity.GetMenuItem, int, error)
 	DeleteShop(id int64, user_id int64) (string, int, error)
-	DeleteMenuItem(id int64) (string, int, error)
+	DeleteMenuItem(id int64, user_id int64) (string, int, error)
 }
